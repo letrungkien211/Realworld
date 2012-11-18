@@ -1,0 +1,2365 @@
+!<arch>
+ab.c            613799669   187   40    100644  1758      `
+#include 	"othello.h"
+
+extern char		ban[];
+extern char		*aki[];
+extern int		sekisa;
+
+ab_max(tesu, alpha, beta, nopass1)
+int    tesu, alpha, beta, nopass1;
+
+{
+	int	hyo;
+	int	nopass2;
+	char	**ap;
+	char	*bp;
+
+	if(tesu <= 0)
+		return sekisa;
+
+	if(tesu == 1)
+		return ab2_max();
+
+	ap = aki;
+	nopass2 = 0;
+
+	while(bp = *(ap++)) {
+		if(*bp != BLANK)
+			continue;
+
+		if(put1(bp) == 0)
+			continue;
+
+		hyo = ab_min(tesu-1, alpha, beta, 1);
+		tup1();
+		nopass2 = 1;
+
+		if(hyo > alpha)
+			alpha = hyo;
+
+		if(alpha >= beta)
+			return alpha;
+	}
+
+	if(nopass2)
+		return alpha;
+
+	if(nopass1) {
+		hyo = ab_min(tesu, alpha, beta, 0);
+		return hyo;
+	}
+	else
+		return sekisa;
+}
+
+ab_min(tesu, alpha, beta, nopass1)
+int    tesu, alpha, beta, nopass1;
+{
+	int hyo;
+	int nopass2;
+	char **ap;
+	char *bp;
+
+	if(tesu <= 0)
+		return sekisa;
+
+	if(tesu == 1)
+		return ab2_min();
+
+	ap = aki;
+	nopass2 = 0;
+
+	while(bp = *(ap++)) {
+		if(*bp != BLANK)
+			continue;
+
+		if(put2(bp) == 0)
+			continue;
+
+		hyo = ab_max(tesu-1, alpha, beta, 1);
+		tup2();
+		nopass2 = 1;
+
+		if(hyo < beta)
+			beta = hyo;
+
+		if(alpha >= beta)
+			return beta;
+	}
+
+	if(nopass2)
+		return beta;
+
+	if(nopass1) {
+		hyo = ab_max(tesu, alpha, beta, 0);
+		return hyo;
+	}
+	else
+		return sekisa;
+}
+
+ab2_max()
+{
+	register int	turn;
+	register char	**ap;
+	char	*bp;
+
+	ap = aki -1;
+
+	while(**(++ap) != BLANK)
+		;
+
+	bp = *ap;
+
+	if(turn = put3(bp))
+		return (sekisa + turn + turn + 1);
+
+	if(turn = put4(bp))
+		return (sekisa - turn - turn - 1);
+	else
+		return sekisa;
+}
+
+ab2_min()
+{
+	register int	turn;
+	register char	**ap;
+	char	*bp;
+
+	ap = aki;
+
+	while(**(ap) != BLANK)
+		ap++;
+
+	bp = *ap;
+
+	if(turn = put4(bp))
+		return (sekisa - turn - turn - 1);
+
+	if(turn = put3(bp))
+		return (sekisa + turn + turn + 1);
+	else
+		return sekisa;
+}
+bstat.c         613800015   187   40    100644  2492      `
+#include			"othello.h"
+#include		    "banmen.h"
+
+
+extern char			ban[];
+extern char			ban1[];
+extern char			ban2[];
+extern char			ban3[];
+extern char			ban4[];
+
+bstat()
+{
+	register int		p;
+
+	for(p = A1; p <= H8; p++) {
+		ban1[p] = 0;
+		ban2[p] = 0;
+		ban3[p] = 0;
+		ban4[p] = 0;
+	}
+
+	bscan(A1, VECT5, 2, 1, 8);
+	bscan(A2, VECT5, 2, 1, 8);
+	bscan(A3, VECT5, 2, 1, 8);
+	bscan(A4, VECT5, 2, 1, 8);
+	bscan(A5, VECT5, 2, 1, 8);
+	bscan(A6, VECT5, 2, 1, 8);
+	bscan(A7, VECT5, 2, 1, 8);
+	bscan(A8, VECT5, 2, 1, 8);
+
+	bscan(A1, VECT7, 2, 1, 8);
+	bscan(B1, VECT7, 2, 1, 8);
+	bscan(C1, VECT7, 2, 1, 8);
+	bscan(D1, VECT7, 2, 1, 8);
+	bscan(E1, VECT7, 2, 1, 8);
+	bscan(F1, VECT7, 2, 1, 8);
+	bscan(G1, VECT7, 2, 1, 8);
+	bscan(H1, VECT7, 2, 1, 8);
+
+	bscan(F1, VECT8, 1, 2, 4);
+	bscan(E1, VECT8, 1, 2, 4);
+	bscan(D1, VECT8, 1, 2, 4);
+	bscan(C1, VECT8, 1, 2, 4);
+	bscan(B1, VECT8, 1, 2, 4);
+	bscan(A1, VECT8, 1, 2, 4);
+	bscan(A2, VECT8, 1, 2, 4);
+	bscan(A3, VECT8, 1, 2, 4);
+	bscan(A4, VECT8, 1, 2, 4);
+	bscan(A5, VECT8, 1, 2, 4);
+	bscan(A6, VECT8, 1, 2, 4);
+
+	bscan(C1, VECT6, 1, 2, 4);
+	bscan(D1, VECT6, 1, 2, 4);
+	bscan(E1, VECT6, 1, 2, 4);
+	bscan(F1, VECT6, 1, 2, 4);
+	bscan(G1, VECT6, 1, 2, 4);
+	bscan(H1, VECT6, 1, 2, 4);
+	bscan(H2, VECT6, 1, 2, 4);
+	bscan(H3, VECT6, 1, 2, 4);
+	bscan(H4, VECT6, 1, 2, 4);
+	bscan(H5, VECT6, 1, 2, 4);
+	bscan(H6, VECT6, 1, 2, 4);
+}
+
+bscan(p, vect, k, u, h)
+register int 	p, vect;
+int		k, u, h;
+{
+	int		p2;
+	int		is1, is2;
+
+	is1 = ban[p];
+	if(is1 != BLANK) {
+		while(ban[p+=vect] == is1)
+			;
+
+		is2 = is1;
+		is1 = ban[p];
+	}
+
+	if(is1 == BLANK) {
+		ban1[p-vect] += h;
+
+		while(ban[p+=vect] == BLANK)
+			;
+		is2 = BLANK;
+		is1 = ban[p];
+		ban1[p] += h;
+	}
+
+	if (is1 == WALL)
+		return;
+
+	for(;;) {
+		p2 = p;
+
+		while(ban[p+=vect] == is1) ;
+
+		if (ban[p] == WALL)
+			return;
+
+		if(is2 == BLANK) {
+			is2 = is1;
+			is1 = ban[p];
+
+			if(is1 == BLANK)
+				do
+					ban1[p2] |= 1;
+				while((p2+=vect) != p);
+			else {
+				ban2[p2] += k;
+
+				if(is2 == WHITE)
+					ban1[p2-vect] += u;
+				else
+					ban2[p2-vect] += u;
+
+				do
+					ban1[p2] |= 3;
+				while((p2+=vect) != p);
+			}
+		}
+		else {
+			is2 = is1;
+			is1 = ban[p];
+
+			if(is1 == BLANK) {
+				ban2[p-vect] += k;
+			
+				if(is2 == WHITE)
+					ban1[p] += u;
+				else
+					ban2[p] += u;
+
+				do
+					ban1[p2] |= 3;
+				while((p2+=vect) != p);
+			}
+		}
+
+		if(is1 == BLANK) {
+			ban1[p-vect] += h;
+			while(ban[p+=vect] == BLANK)
+				;
+
+			is2 = BLANK;
+			is1 = ban[p];
+
+			if(is1 == WALL)
+				return;
+
+			ban1[p] += h;
+		}
+	}
+}
+cell.c          613806891   187   40    100644  2305      `
+#include		"othello.h"
+
+#define		MAXCELL		7000
+
+extern	char	ban[];
+extern	char	*aki[];
+extern	int		hukasa;
+
+static CELL		cell[MAXCELL];
+static CELL		*free;
+int		nc;
+
+init_cell()
+{
+	CELL		*p;
+
+	for(p = cell; p < &cell[MAXCELL-1]; p++)
+		p->cdr = p + 1;
+
+	p->cdr = 0;
+	free = cell;
+	nc = MAXCELL;
+}
+
+CELL	*get_cell()
+{
+	register CELL	*p;
+
+	if(nc-- <= 0) {
+		printf("cell over flow ");
+		exit(1);
+	}
+
+	p = free;
+	free = p->cdr;
+	return p;
+}
+
+free_cell(p)
+register CELL	*p;
+{
+	p->cdr = free;
+	free = p;
+	nc++;
+}
+
+mkchild1(p)
+CELL	*p;
+{
+	char	**ap;
+	register char	*bp;
+	register CELL	*p1;
+	CELL	ltop;
+
+	p1 = &ltop;
+
+	for(ap = aki; bp = *(ap++); ) {
+		if(*bp != BLANK)
+			continue;
+
+		if(isable1(bp)) {
+			p1 = p1->cdr = get_cell();
+			p1->child = NULL;
+			p1->t = bp - ban;
+		}
+	}
+
+	p1->cdr = NULL;
+
+	if(ltop.cdr)
+		p->child = ltop.cdr;
+	else {
+		p1 = p->child = get_cell();
+		p1->child = NULL;
+		p1->cdr = NULL;
+		p1->t = 0;
+	}
+}
+
+mkchild2(p)
+CELL	*p;
+{
+	char	**ap;
+
+	register char	*bp;
+	register CELL	*p1;
+	CELL	ltop;
+
+	p1 = &ltop;
+	ap = aki;
+
+	for(ap = aki; bp = *(ap++); ) {
+		if(*bp != BLANK)
+			continue;
+
+		if(isable2(bp)) {
+			p1 = p1->cdr = get_cell();
+			p1->child = NULL;
+			p1->t = bp - ban;
+		}
+	}
+
+	p1->cdr = NULL;
+
+	if (ltop.cdr)
+		p->child = ltop.cdr;
+	else {
+		p1 = p->child = get_cell();
+		p1->child = NULL;
+		p1->cdr = NULL;
+		p1->t = 0;
+	}
+}
+
+cut_node(p)
+register CELL	*p;
+{
+	if(p == 0)
+		return;
+
+	cut_node(p->child);
+	cut_node(p->cdr);
+	free_cell(p);
+}
+
+sort(p)
+CELL	*p;
+{
+	CELL	*p1;
+	register CELL	*p2, *p3;
+	CELL	ltop;
+	int		hyo;
+
+	p1 = p->child;
+	ltop.cdr = NULL;
+
+	while(p1) {
+		p2 = ltop.cdr;
+		p3 = &ltop;
+		hyo = p1->h;
+		while(p2 && (hyo < p2->h)) {
+			p3 = p2;
+			p2 = p2->cdr;
+		}
+
+		p3->cdr = p1;
+		p3 = p1;
+		p1 = p1->cdr;
+		p3->cdr = p2;
+	}
+
+	p->child = ltop.cdr;
+}
+
+sort_top(p)
+CELL	*p;
+{
+	CELL	*p1;
+	register CELL	*p2, *p3;
+	CELL	ltop;
+	int		hyo;
+
+	p1 = p->child;
+	p2 = p1->cdr;
+	p3 = &ltop;
+	ltop.cdr = p2;
+	hyo = p1->h;
+
+	while(p2 && (hyo < p2->h)) {
+		p3 = p2;
+		p2 = p2->cdr;
+	}
+
+	p3->cdr = p1;
+	p1->cdr = p2;
+	p->child = ltop.cdr;
+}
+
+cut_low(p, hyo)
+CELL	*p;
+int		hyo;
+{
+	register CELL	*p2, *p3;
+	CELL	ltop;
+
+	p2 = p->child;
+	p3 = &ltop;
+	ltop.cdr = p2;
+
+	while(p2 && (hyo < p2->h)) {
+		p3 = p2;
+		p2 = p2->cdr;
+	}
+
+	p3->cdr = 0;
+	cut_node(p2);
+	p->child = ltop.cdr;
+}
+
+com.c           613812649   187   40    100644  1446      `
+#include 	"othello.h" 
+#include	"banmen.h" 
+
+extern int	level;
+
+extern char	ban[];
+extern char	*aki[];
+extern int	te;
+
+extern CELL	*get_cell();
+
+int	sekisa;
+
+char	yuusen[] =
+	{
+		A1,H1,A8,H8,
+		D3,E3,C4,C5,F4,F5,D6,E6,
+		C3,F3,C6,F6,
+		D2,E2,B4,B5,G4,G5,D7,E7,
+		C1,F1,A3,A6,H3,H6,C8,F8,
+		D1,E1,A4,A5,H4,H5,D8,E8,
+		C2,F2,B3,B6,G3,G6,C7,F7,
+		B1,G1,A2,A7,H2,H7,B8,G8,
+		B2,G2,B7,G7,
+		0
+	};
+
+struct	lvt
+{
+	int	hukasa;
+	int kyoka;
+	int hishou;
+	int kanzen;
+};
+
+struct	lvt		lvtbl[] =
+{
+	{ 2,10,12,10 },
+	{ 2,20,12,10 },
+	{ 2,35,13,11 },
+	{ 4,10,13,11 },
+	{ 4,20,14,11 },
+	{ 4,35,14,12 },
+	{ 6,10,15,12 },
+	{ 6,20,15,12 }
+};
+
+com()
+{
+	int i, kuusho, hukasa;
+	int x, y;
+	char **a;
+	char *bp;
+	CELL *p;
+
+	joseki();
+	if(te)
+		return;  
+	kuusho = 0;
+	a = aki;
+
+	for (i = 0; i < 60;  ) {
+		bp = ban + yuusen[i++];
+		if(*bp == BLANK) {
+			*(a++) = bp;
+			kuusho++;
+		}
+	}
+
+	*a = 0;
+
+	sekisa = 0;
+	for(y = 1; y < 9; y++) {
+		for(x = 1; x < 9; x++) {
+			switch(ban[y*9+x]) {
+				case BLACK:
+					sekisa++;
+					break;
+				case WHITE:
+					sekisa--;
+			}
+		}
+	}
+
+	init_cell();
+	p = get_cell();
+	p->child = NULL;
+	p->cdr = NULL;
+
+	if(kuusho <= lvtbl[level-1].kanzen) {
+		p->h = -64;
+		mr2(p, kuusho, 64);
+	}
+		else if(kuusho <= lvtbl[level-1].hishou) {
+			p->h = -1;
+			mr2(p, kuusho, 1);
+		}
+		else {
+			hukasa = lvtbl[level-1].hukasa;
+			if(kuusho <= lvtbl[level-1].kyoka) 
+				hukasa += 2;
+
+			p->h = -10000;
+			mr1(p, hukasa, 10000);
+		}
+
+		te = p->t;
+}
+eval.c          613796958   187   40    100644  410       `
+#include		"othello.h"
+
+extern char		ban[];
+
+char	ban1[91];
+char	ban2[91];
+char	ban3[91];
+char	ban4[91];
+
+int		h1, h2, h3, h4, h5, h6, h7;
+
+eval2()
+{
+	int	hyo;
+
+	rev_ban();
+	hyo = eval1();
+	rev_ban();
+	return -hyo;
+}
+
+eval1()
+{
+	int		hyo;
+
+	h1=h2=h3=h4=h5=h6=h7=0;
+
+	bstat();
+	ptn();
+	pass1();
+	pass2();
+	pass3();
+	pass4();
+
+	hyo = h3+h6-h4-h5;
+	hyo += h1 * 100;
+	hyo += h7 * 25;
+	hyo += h2 / 2;
+	return hyo;
+}
+joseki.c        613817158   187   40    100644  1782      `
+#include		"othello.h"
+#include		"banmen.h"
+
+#include		"setjmp.h"
+jmp_buf			env;
+
+extern char ban[];
+extern char ban1[];
+extern char ban2[];
+extern char ban3[];
+extern char ban4[];
+
+extern int	te;
+
+struct jcell
+{
+	char	te;
+	struct jcell *son;
+};
+
+typedef struct jcell		JCELL;
+
+extern JCELL	jsktbl2[], naname[], tate[];
+extern JCELL 	naname2[], naname3[], ushi[];
+extern JCELL	usagi[], usagi2[];
+
+JCELL	jsktbl[] =
+{
+	{F5, jsktbl2},
+	{0, 0}
+};
+
+JCELL	jsktbl2[] =
+{
+	{F6, naname},
+	{D6,tate},
+	{0, 0}
+};
+
+JCELL	naname[] =
+{
+	{E6, naname2},
+	{0, 0}
+};
+
+JCELL	naname2[] =
+{
+	{D6, naname3},
+	{0, 0}
+};
+
+JCELL	naname3[] =
+{
+	{C5, ushi},
+	{0, 0}
+};
+
+JCELL	ushi[] =
+{
+	{E3, 0},
+	{0, 0}
+};
+
+JCELL	tate[] =
+{
+	{C5, usagi},
+	{0, 0}
+};
+
+JCELL	usagi[] =
+{
+	{F4, usagi2},
+	{0, 0}
+};
+
+JCELL	usagi2[] =
+{
+	{E3, 0},
+	{0, 0}
+};
+
+joseki()
+{
+	int	i, x, y;
+
+	for(i = A1; i <= H8; i++)
+		ban1[i]=ban2[i]=ban3[i]=ban4[i]=WALL;
+
+	for(y = 1; y <= 8; y++)
+		for(x = 1; x <= 8; x++) {
+			ban1[y*9+x] = ban[y*9+x];
+			ban2[x*9+y] = ban[y*9+x];
+			ban3[(9-y)*9+9-x] = ban[y*9+x];
+			ban4[(9-x)*9+9-y] = ban[y*9+x];
+		}
+
+	set_ban();
+
+	te = setjmp(env);
+	if(te == 0)
+		search(jsktbl);
+
+	for(y = 1; y <= 8; y++)
+		for(x= 1; x <= 8; x++)
+			ban[y*9+x] = ban1[y*9+x];
+}
+
+search(p)
+JCELL	*p;
+{
+	int	t, tx, ty;
+
+	t = p->te;
+	tx = t % 9;
+	ty = t / 9;
+
+	if(compare(&ban1[A1]))
+		longjmp(env, t);
+	if(compare(&ban2[A1]))
+		longjmp(env, tx*9+ty);
+	if(compare(&ban3[A1]))
+		longjmp(env, (9-ty)*9+9-tx);
+	if(compare(&ban4[A1]))
+		longjmp(env, (9-tx)*9+9-ty);
+
+	for(; p->te; p++) {
+		if(p->son == 0)
+			continue;
+
+		put1(p->te + ban);
+		rev_ban();
+		search(p->son);
+		rev_ban();
+		tup1();
+	}
+}
+
+compare(bp1)
+char	*bp1;
+{
+	char	*bp2;
+
+	for(bp2 = &ban[A1]; bp2 <= &ban[H8]; )
+		if(*(bp1++) != *(bp2++))
+			return 0;
+	return 1;
+}
+mr1.c           613807383   187   40    100644  2533      `
+#include			"othello.h"
+
+extern int			nc;
+extern int			sekisa;
+extern char			ban[];
+
+#define	NMR			500
+#define SMAX		  5
+#define SMIN		  3
+
+mr1(p, tesu, beta)
+CELL	*p;
+int		tesu, beta;
+{
+	CELL	*son;
+	int		hyo;
+
+	mkchild1(p);
+
+	for(son = p->child; son; son = son->cdr) {
+		put1(son->t + ban);
+		son->h = eval2();
+		tup1();
+	}
+
+	sort(p);
+	p->t = (p->child)->t;
+
+	for(son = p->child; son; son = son->cdr)
+		son->h = beta;
+
+	while(son = p->child) {
+		put1(son->t + ban);
+		hyo = mr_min(son, tesu-1, p->h);
+		tup1();
+
+		if(hyo > p->h) {
+			p->h = hyo;
+			p->t = son->t;
+		}
+
+		sort_top(p);
+		cut_low(p, p->h);
+	}
+}
+
+static mr_max(p, tesu, beta)
+CELL		*p;
+int			tesu, beta;
+{
+	CELL 	*son;
+	int		n, hyo;
+
+	if(tesu <= 0) {
+		hyo = eval1();
+		p->h = hyo;
+		return hyo;
+	}
+
+	if(p->child == NULL) {
+		mkchild1(p);
+		son = p->child;
+		if((son->t == 0) && (p->t == 0)) {
+			hyo = sekisa * 128;
+			p->h = hyo;
+			return hyo;
+		}
+
+		if((tesu >= SMAX) && son->cdr) {
+			for(son = p->child; son; son = son->cdr) {
+				put1(son->t + ban);
+				son->h = eval2();
+				tup1();
+			}
+
+			sort(p);
+		}
+
+		son = p->child;
+		while(son) {
+			son->h = beta;
+			son = son->cdr;
+		}
+	}
+	else
+		cut_low(p, p->h);
+
+	n = (tesu + 1) * NMR;
+
+	while(son = p->child) {
+		if((nc > n) && (son->h < beta))
+			return son->h;
+
+		if(son->t == 0)
+			hyo = mr_min(son, tesu-1, p->h);
+		else {
+			put1(son->t + ban);
+			hyo = mr_min(son, tesu-1, p->h);
+			tup1();
+		}
+
+		if(hyo >p->h)
+			p->h = hyo;
+
+		sort_top(p);
+		cut_low(p, p->h);
+	}
+
+	return p->h;
+}
+
+static mr_min(p, tesu, alpha)
+CELL	*p;
+int		tesu, alpha;
+{
+	CELL	*son;
+	int		hyo, ret_flg;
+	if(tesu <= 0) {
+		hyo = eval2();
+		p->h = hyo;
+		return hyo;
+	}
+
+	if(p->child == NULL) {
+		mkchild2(p);
+
+		son = p->child;
+		if((son->t == 0) && (p->t == 0)) {
+			hyo = sekisa *128;
+			p->h = hyo;
+			return hyo;
+		}
+
+		if((tesu >= SMIN) && (son->cdr != 0)) {
+			for(son = p->child; son; son = son->cdr) {
+				put2(son->t + ban);
+				son->h = -eval1();
+				tup2();
+			}
+
+			sort(p);
+		}
+
+		son = p->child;
+		son->h = alpha;
+	}
+	else {
+		son = p->child;
+		if(son->h < alpha)
+			son->h = alpha;
+	}
+
+	ret_flg = 0;
+
+	while(ret_flg == 0) {
+		son = p->child;
+
+		if(son->t == 0)
+			hyo = mr_max(son, tesu-1, p->h);
+		else {
+			put2(son->t + ban);
+			hyo = mr_max(son, tesu-1, p->h);
+			tup2();
+		}
+
+		if(hyo < p->h) {
+			p->h = hyo;
+			ret_flg = 1;
+		}
+
+		if(son->h >= p->h) {
+			p->child = son->cdr;
+			son->cdr = NULL;
+			cut_node(son);
+			son = p->child;
+
+			if(son)
+				son->h = alpha;
+			else
+				return p->h;
+		}
+	}
+
+	return alpha;
+}
+
+mr2.c           613807413   187   40    100644  2621      `
+#include			"othello.h"
+
+extern int			nc;
+extern int			sekisa;
+
+extern char			ban[];
+
+#define	NMR			300
+#define SMAX		 12 
+#define SMIN		 10 
+
+mr2(p, tesu, beta)
+CELL	*p;
+int		tesu, beta;
+{
+	CELL	*son;
+	int		hyo;
+
+	mkchild1(p);
+
+	for(son = p->child; son; son = son->cdr) {
+		put1(son->t + ban);
+		son->h = eval2();
+		tup1();
+	}
+
+	sort(p);
+	p->t = (p->child)->t;
+
+	for(son = p->child; son; son = son->cdr)
+		son->h = beta;
+
+	while(son = p->child) {
+		put1(son->t + ban);
+		hyo = mr_min(son, tesu-1, p->h);
+		tup1();
+
+		if(hyo > p->h) {
+			p->h = hyo;
+			p->t = son->t;
+		}
+
+		sort_top(p);
+		cut_low(p, p->h);
+	}
+}
+
+static mr_max(p, tesu, beta)
+CELL		*p;
+int			tesu, beta;
+{
+	CELL 	*son;
+	int		n, hyo;
+
+	if(tesu <= 0) {
+		hyo = sekisa;
+		p->h = hyo;
+		return hyo;
+	}
+
+	if(tesu <= 8) {
+		hyo = ab_max(tesu, p->h, beta, p->t);
+		p->h = hyo;
+		return hyo;
+	}
+
+	if(p->child == NULL) {
+		mkchild1(p);
+		son = p->child;
+		if((son->t == 0) && (p->t == 0)) {
+			hyo = sekisa;
+			p->h = hyo;
+			return hyo;
+		}
+
+		if((tesu >= SMAX) && son->cdr) {
+			for(son = p->child; son; son = son->cdr) {
+				put1(son->t + ban);
+				son->h = eval2();
+				tup1();
+			}
+
+			sort(p);
+		}
+
+		son = p->child;
+		while(son) {
+			son->h = beta;
+			son = son->cdr;
+		}
+	}
+	else
+		cut_low(p, p->h);
+
+	n = (tesu - 7) * NMR;
+
+	while(son = p->child) {
+		if((nc > n) && (son->h < beta))
+			return son->h;
+
+		if(son->t == 0)
+			hyo = mr_min(son, tesu, p->h);
+		else {
+			put1(son->t + ban);
+			hyo = mr_min(son, tesu-1, p->h);
+			tup1();
+		}
+
+		if(hyo > p->h)
+			p->h = hyo;
+
+		sort_top(p);
+		cut_low(p, p->h);
+	}
+
+	return p->h;
+}
+
+static mr_min(p, tesu, alpha)
+CELL	*p;
+int		tesu, alpha;
+{
+	CELL	*son;
+	int		hyo, ret_flg;
+	if(tesu <= 0) {
+		hyo = sekisa;
+		p->h = hyo;
+		return hyo;
+	}
+
+	if(p->child == NULL) {
+		mkchild2(p);
+
+		son = p->child;
+		if((son->t == 0) && (p->t == 0)) {
+			hyo = sekisa;
+			p->h = hyo;
+			return hyo;
+		}
+
+		if((tesu >= SMIN) && son->cdr) {
+			son = p->child;
+			for(son = p->child; son; son = son->cdr) {
+				put2(son->t + ban);
+				son->h = -eval1();
+				tup2();
+			}
+
+			sort(p);
+		}
+
+		son = p->child;
+		son->h = alpha;
+	}
+	else {
+		son = p->child;
+		if(son->h < alpha)
+			son->h = alpha;
+	}
+
+	ret_flg = 0;
+
+	while(ret_flg == 0) {
+		son = p->child;
+
+		if(son->t == 0)
+			hyo = mr_max(son, tesu, p->h);
+		else {
+			put2(son->t + ban);
+			hyo = mr_max(son, tesu-1, p->h);
+			tup2();
+		}
+
+		if(hyo < p->h) {
+			p->h = hyo;
+			ret_flg = 1;
+		}
+
+		if(son->h >= p->h) {
+			p->child = son->cdr;
+			son->cdr = NULL;
+			cut_node(son);
+			son = p->child;
+
+			if(son)
+				son->h = alpha;
+			else
+				return p->h;
+		}
+	}
+
+	return alpha;
+}
+
+othello.c       613818511   187   40    100644  2657      `
+#include 	"othello.h"
+#include 	"banmen.h"
+
+#define		COM		1
+#define		MAN		2
+
+char	ban[91];
+char	*aki[61];
+
+int		stack[500];
+int		*sp;
+
+int		hukasa;
+int		level;
+int		player[3];
+int		te;
+
+main()
+{
+	int		i;
+	int		teban;
+	char	line[10];
+
+	printf("\nMORITAN OTHELLO Ver 6.1\n");
+	printf("Copyright (C) 1986 by K.Morita\n\n");
+	printf("Typed by Hasegawa et. al.\n");
+	printf("Edited and corrected  by Saishi IBA\n");
+	printf("CONTACT Saishi if needed!!\n");
+
+	do {
+		printf("\n1.man-com 2.com-man 3.com-com\n");
+		printf("select= ");
+		gets(line,10);
+		sscanf(line, "%d", &i);
+	}
+	while(i<1 || i>3);
+
+	player[0]=player[1]=COM;
+	player[i-1]=MAN;
+
+	do {
+		printf("Level = ");
+		gets(line, 10);
+		sscanf(line, "%d", &level);
+	}
+	while(level<1 || level>8);
+
+	set_ban();
+
+	teban = 0;
+
+	for(;;) {
+		disp_ban();
+		sp = stack;
+
+		move(teban);
+		if(te == -1)
+			break;
+
+		if(te)
+			if(teban == 0)
+				put1(te + ban);
+			else
+				put2(te + ban);
+		teban = 1 - teban;
+	}
+}
+
+move(teban)
+int	teban;
+{
+	int st;
+	if(teban)
+		rev_ban();
+
+	/* next is modified by Saishi 1989 6 14 */
+	st = stat();
+	if (st > 0)
+		if(player[teban] == COM)
+			com();
+		else
+			{
+			if (st == 1) printf("\n Your move is FORCED!!!\n");
+			man();
+			}
+
+	if(teban)
+		printf("\nwhite:");
+	else
+		printf("\nblack:");
+
+	if(te > 0)
+		printf("%c%c", (te % 9) + 96, (te / 9) + 48);
+	else
+		printf(" PASS");
+
+	if(teban)
+		rev_ban();
+}
+
+man()
+{
+	int	x, y;
+	char	line[10];
+
+	for(;;) {
+		printf("\nInput your move ? ");
+		gets(line, 10);
+		x = line[0] & 15;
+		y = line[1] & 15;
+
+		if(x<1 || x>8 || y<1 || y>8)
+			continue;
+
+		if(ban[y*9+x] != BLANK)
+			continue;
+
+		te = y*9+x;
+
+		if(isable1(te + ban))
+			return;
+	}
+}
+
+stat()
+{
+	int	t;
+	int	n1, n2;
+
+	te = n1 = n2 = 0;
+
+	for(t = A1; t <= H8; t++) {
+		if(ban[t] != BLANK)
+			continue;
+
+		if(isable1(t + ban)) {
+			te = t;
+			n1++;
+		}
+
+		if(isable2(t + ban))
+			n2++;
+	}
+
+	if(n1)
+		return n1;
+	else if(n2)
+		return 0;
+	else {
+		te = -1;
+		return -1;
+	}
+}
+
+set_ban()
+{
+	int	i, x, y;
+
+	for(i = 0; i < 91; )
+		ban[i++] = WALL;
+
+	for(y = 1; y < 9; y++)
+		for(x = 1; x < 9; x++)
+			ban[y*9+x] = BLANK;
+
+	ban[D4] = WHITE;
+	ban[E4] = BLACK;
+	ban[D5] = BLACK;
+	ban[E5] = WHITE;
+}
+
+disp_ban()
+{
+	int	x, y;
+	int b, w;
+	char	c;
+
+	b = w = 0;
+
+	printf("\n  a b c d e f g h");
+
+	for(y = 1; y <= 8; y++) {
+		printf("\n%1d", y);
+		for(x = 1; x <= 8; x++) {
+			c = ban[y*9+x];
+			printf(" %c", c);
+			if(c == BLACK)
+				b++;
+			else if(c == WHITE)
+				w++;
+		}
+	}
+	printf("\nblack=%2d white=%2d\n", b, w);
+}
+
+rev_ban()
+{
+	register char	*p;
+
+	for(p = &ban[A1]; p <= &ban[H8]; p++) {
+		switch(*p) {
+			case BLACK:
+				*p = WHITE;
+				break;
+			case WHITE:
+				*p = BLACK;
+		}
+	}
+}
+
+
+
+pass.c          613807543   187   40    100644  3682      `
+#include	"othello.h"
+#include	"banmen.h"
+
+#define	P0	6
+#define	P1	3
+#define	P2	6
+
+extern	char	ban[];
+extern	char	ban1[];
+extern	char	ban2[];
+extern	char	ban3[];
+extern	char	ban4[];
+
+extern	int	h1, h2, h3, h4, h5, h6;
+
+pass1()
+{
+	register	int	p;
+	register	int	is;
+	int		n1, n2;
+	int		t, t2;
+
+	static	char	tbl[] =
+	{
+		0,0,0,0,0,0,0,0,0,
+		0,0,6,4,5,5,4,6,0,
+		0,6,6,5,5,5,5,6,6,
+		0,4,5,5,4,4,5,5,4,
+		0,5,5,4,4,4,4,5,5,
+		0,5,5,4,4,4,4,5,5,
+		0,4,5,5,4,4,5,5,4,
+		0,6,6,5,5,5,5,6,6,
+		0,0,6,4,5,5,4,6,0
+	};
+
+	for (p = A1; p <= H8; p++) {
+		if ((is = ban[p]) == WALL)
+			continue;
+
+		n1 = ban1[p];
+		n2 = ban2[p];
+
+		if (is == BLANK) {
+			if (n1) {
+				t = P0 - n1;
+				if (t > 0)
+					t += P1;
+				else
+					t = P1;
+
+				ban1[p] = t;
+
+				t += P2;
+				t2 = (t>>1) + t;
+
+				ban3[p+VECT1] += t;
+				ban3[p+VECT2] += t2;
+				ban3[p+VECT3] += t;
+				ban3[p+VECT4] += t2;
+				ban3[p+VECT5] += t2;
+				ban3[p+VECT6] += t;
+				ban3[p+VECT7] += t2;
+				ban3[p+VECT8] += t;
+			}
+
+			if (n2) {
+				t = P0 - n2;
+				if (t > 0)
+					t += P1;
+				else
+					t = P1;
+
+				ban2[p] = t;
+
+				t += P2;
+				t2 = (t>>1) + t;
+
+				ban4[p+VECT1] += t;
+				ban4[p+VECT2] += t2;
+				ban4[p+VECT3] += t;
+				ban4[p+VECT4] += t2;
+				ban4[p+VECT5] += t2;
+				ban4[p+VECT6] += t;
+				ban4[p+VECT7] += t2;
+				ban4[p+VECT8] += t;
+			}
+		}
+		else {
+			ban2[p] = 0;
+
+			if (is == BLACK) {
+				if ((n1 & 1) == 0) {
+					h1++;
+					continue;
+				}
+
+				if ((t = n1>>2) == 0)
+					continue;
+
+				if (n1)
+					ban2[p] = n1 + tbl[p];
+				else
+					h2 -= (t>>1) + tbl[p];
+			}
+			else {
+				if ((n1 & 1) == 0) {
+					h1--;
+					continue;
+				}
+
+				if ((t = n1>>2) == 0)
+					continue;
+
+				if (n1)
+					ban2[p] = n1 + tbl[p];
+				else
+					h2 += (t>>1) + tbl[p];
+			}
+		}
+	}
+}
+
+pass2()
+{
+	register	int	p, n;
+
+	static	char	tbl[] =
+	{
+		0,0,0,0,0,0,0,0,0,
+		0,7,0,7,6,6,7,0,7,
+		0,0,0,5,6,6,5,0,0,
+		0,7,5,6,7,7,6,5,7,
+		0,6,6,7,7,7,7,6,6,
+		0,6,6,7,7,7,7,6,6,
+		0,7,5,6,7,7,6,5,7,
+		0,0,0,5,6,6,5,0,0,
+		0,7,0,7,6,6,7,0,7
+	};
+
+	for (p = A1; p <= H8; p++) {
+		if (ban[p] != BLANK)
+			continue;
+
+		if (n = ban1[p]) {
+			n *= 12;
+			n -= ban3[p];
+			if (n < 0)
+				n = 0;
+
+			h3 += n + tbl[p];
+		}
+
+		if (n = ban2[p]) {
+			n *= 12;
+			n -= ban4[p];
+			if (n < 0)
+				n = 0;
+			
+			h4 += n + tbl[p];
+		}
+	}
+}
+
+pass3()
+{
+	register	int	p, t1;
+	int	t2;
+
+	for (p = A1; p <= H8; p++) {
+		ban3[p] = 0;
+		ban4[p] = 0;
+	}
+
+	for (p = A1; p <= H8; p++) {
+		switch(ban[p]) {
+			case BLACK:
+				if ((t1 = ban2[p]) == 0)
+					break;
+
+				t1 += 4;
+				t2 = t1>>1;
+
+				ban3[p+VECT1] += t2;
+				ban3[p+VECT2] += t1;
+				ban3[p+VECT3] += t2;
+				ban3[p+VECT4] += t1;
+				ban3[p+VECT5] += t1;
+				ban3[p+VECT6] += t2;
+				ban3[p+VECT7] += t1;
+				ban3[p+VECT8] += t2;
+				break;
+			case WHITE:
+				if((t1 = ban2[p]) == 0)
+					break;
+
+				t1 += 4;
+				t2 = t1>>1;
+
+				ban4[p+VECT1] += t2;
+				ban4[p+VECT2] += t1;
+				ban4[p+VECT3] += t2;
+				ban4[p+VECT4] += t1;
+				ban4[p+VECT5] += t1;
+				ban4[p+VECT6] += t2;
+				ban4[p+VECT7] += t1;
+				ban4[p+VECT8] += t2;
+		}
+	}
+}
+
+pass4()
+{
+	register	int	p, n;
+
+	static	char	tbl[] =
+	{
+		0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0,18,14,16,16,14,18, 0,
+		0,18,20,16,14,14,16,20,18,
+		0,14,16,16,14,14,16,16,14,
+		0,16,14,14,14,14,14,14,16,
+		0,16,14,14,14,14,14,14,16,
+		0,14,16,16,14,14,16,16,14,
+		0,18,20,16,14,14,16,20,18,
+		0, 0,18,14,16,16,14,18, 0
+	};
+
+	for (p = A1; p <= H8; p++) {
+		switch(ban[p]) {
+			case BLACK:
+				if ((n = ban2[p]) == 0)
+					break;
+
+				n = n * 10 - ban3[p];
+				if (n < 0)
+					n = 0;
+
+				h5 += n + tbl[p] + 6;
+				break;
+
+			case WHITE:
+				if ((n = ban2[p]) == 0)
+					break;
+
+				n = n * 10 - ban4[p];
+				if (n < 0)
+					n = 0;
+
+				h6 += n + tbl[p] + 6;
+		}
+	}
+}
+
+ptn.c           613807645   187   40    100644  4297      `
+/*======================================================*/
+/*							*/
+/*		ptn.c  					*/
+/*======================================================*/
+
+#include	"othello.h"
+#include	"banmen.h"
+
+extern	char	ban[];
+extern	char	ban1[];
+extern	char	ban2[];
+extern 	char	ban3[];
+extern	char	ban4[];
+
+extern	int	h7,h8;
+
+#define	STEN	10
+#define	STEN2	10
+#define	CTEN	10
+#define	CTEN2	4
+
+int	tf;
+
+ptn()
+{
+	h7 = 0;
+	pscan(A1,VECT5,VECT7);
+	pscan(A8,VECT5,VECT2);
+	pscan(H1,VECT4,VECT7);
+	pscan(H8,VECT4,VECT2);
+}
+
+pscan(p,vect1,vect2)
+int	p,vect1,vect2;
+{
+	int	is,hh;
+	is = ban[p];
+
+	if(is == BLACK){
+		h7 += pscan1(p,vect1);
+		h7 += pscan1(p,vect2);
+		h7 += STEN2;
+		return;
+	}
+	if( is == WHITE){
+		h7 -= pscan2(p,vect1);
+		h7 -= pscan2(p,vect2);
+		h7 -= STEN2;
+		return;
+	}
+
+	if( ban1[p]){
+		h7 += pscan3(p,vect1);
+		h7 += pscan3(p,vect2);
+		h7 += 4;
+		h7 += STEN2;
+		return;
+	}
+
+	if(ban2[p]){
+		tf = 0;
+		if (ban[p+vect1+vect2] == BLACK)
+			tf = 1;
+		hh = pscan4(p, vect1);
+		hh += pscan4(p,vect2);
+		hh += 4;
+		if(tf) {
+			h7 -= hh;
+			h7 -= STEN2;
+			return;
+		}
+
+	}
+
+
+	
+	switch(ban[p+vect1+vect2]){
+		case BLACK:
+			h7 -= STEN;
+			return;
+		case WHITE:
+			h7 += STEN;
+			return;
+	}
+
+	
+	is = ban[p+vect1];
+
+	if(is == BLACK)
+		h7 -= pscan5(p,vect1);
+	if(is == WHITE)
+		h7 += pscan6(p,vect1);
+			
+	is = ban[p+vect2];
+	if(is == BLACK)
+		h7 -= pscan5(p,vect2);
+	if(is == WHITE)
+		h7 += pscan6(p,vect2);
+}
+
+pscan1(p,vect)
+register int p,vect;
+{
+	int	hyo;
+
+	hyo = 0;
+	while(ban[p+=vect] == BLACK)
+		;
+	
+	if(ban[p] == WHITE)
+		if(ban1[p] & 1){
+			while(ban[p+=vect] == WHITE)
+				hyo += 4;
+			hyo += 4;
+			p += vect;
+		}
+		else
+			return (0);
+
+	while(ban[p] != WALL){	
+		if((ban[p] == BLANK) || (ban1[p] & 1))
+			hyo += 2;
+		else
+			return(hyo);
+		p += vect;
+	}
+
+	return (hyo);
+}
+
+
+pscan2(p,vect)
+register int p,vect;
+{
+	int	hyo;
+	int	n;
+
+	hyo = 0;
+	while (ban[p+= vect] == WHITE)
+		;
+
+	if(ban[p] == BLACK)
+		if(ban1[p] & 1){
+			while(ban[p+=vect] == BLACK)
+				hyo += 4;
+			hyo += 4;
+			n = ban1[p];
+			p += vect;
+			if(n){
+				switch(ban[p]){
+					case BLACK:
+						if((ban1[p] &3) == 1)
+							break;
+					case WHITE:
+					case WALL:
+						hyo = 0;
+				}
+			}
+		}
+
+		else
+			return(0);
+
+	while (ban[p] != WALL) {
+		if((ban[p] == BLANK ) || (ban1[p] & 1))
+			hyo += 2;
+		else
+			return (hyo);
+		p += vect;
+	}
+
+	return (hyo);
+}
+
+
+pscan3(p,vect)
+register int p,vect;
+{
+	int	hyo;
+	int	n;
+
+	hyo = 0;
+	p += vect;
+	if((ban[p] == WHITE ) && (ban1[p] & 2))
+		while(ban[p+=vect] == WHITE)
+			hyo += 4;
+
+	if((ban[p] == BLACK ) && ((ban1[p] & 1 ) == 0)) {
+		hyo += 4;
+		while( ban[p+=vect] == BLACK)
+			hyo += 4;
+	}
+
+	if(ban1[p] == WHITE)
+		if(ban[p] & 1) {
+			while(ban[p+=vect] == WHITE)
+				hyo += 4;
+			hyo += 4;
+			n = ban1[p];
+			p += vect;
+
+			if(n){
+				switch(ban[p]) {
+					case WHITE:
+						if((ban1[p] & 3)== 1)
+							break;
+					case BLACK:
+					case WALL:
+						hyo = 0;
+				}
+			}
+		}
+		else
+			return(0);
+	while (ban[p] != WALL ) {
+		if((ban[p] == BLANK) || (ban1[p] & 1))
+			hyo += 2;
+		else
+			return (hyo);
+		p += vect;
+	}
+
+	return (hyo);
+}
+
+
+
+pscan4(p,vect)
+register int	p,vect;
+{
+	int	hyo;
+	int	n;
+
+	hyo = 0;
+	p += vect;
+	if((ban[p] == BLACK) && (ban1 [p] & 2 )) {
+		while(ban[p+=vect] == BLACK)
+			hyo += 4;
+
+		if((ban1[p] & 1) == 0 ) {
+			tf = 1;
+			return (hyo);
+		}
+	}
+
+	if((ban[p] == WHITE ) && (ban1[p] & 1 )) {
+		hyo += 4 ;
+		while ( ban[p += vect] == WHITE )
+			hyo += 4;
+	}
+	
+	if(ban[p] == BLACK)
+		if(ban1[p] & 1) {
+			while(ban[p+=vect] == BLACK)
+				hyo += 4;
+			hyo += 4;
+			n = ban1[p];
+			p += vect;
+
+			if(n)
+				switch(ban[p]) {
+					case BLACK:
+						if((ban1[p] & 3) == 1)
+							break;
+					case WHITE:
+					case WALL:
+						hyo = 0;
+				}
+			}
+			else 
+				return (0);
+
+		while(ban[p] != WALL) {
+			if((ban[p] == BLANK) || (ban1[p] & 1))
+				hyo += 2 ;
+			else
+				return (hyo);
+				
+			p += vect;
+		}
+
+		return ( hyo);
+}
+
+pscan5(p,vect)
+register int p,vect;
+{
+	p += vect;
+	if(( ban1[p] & 1) == 0 )
+		return(0);
+	
+	if(ban1[p] & 2)
+		return(CTEN);
+	
+	while(ban[p += vect] == BLACK)
+		;
+
+	if(ban2[2])
+		return CTEN;
+	else
+		return CTEN2;
+}
+
+pscan6(p, vect)
+register int p, vect;
+{
+	p += vect;
+	if(( ban1[p] & 1) == 0)
+		return(0);
+
+	if(ban1[p] & 2 ) 
+		return(CTEN);
+
+	while(ban[p+=vect] == WHITE)
+		;
+	
+	if(ban1[p])
+		return CTEN;
+	else
+		return CTEN2;
+}
+
+
+
+
+								
+
+
+						
+
+put.c           613807692   187   40    100644  3318      `
+#include	"othello.h"
+
+#define		push(a) *(sp++)=(int)a
+#define		pop(a) a = *(--sp)
+
+extern char 	ban[];
+extern int		sekisa;
+extern int		*sp;
+
+put1(bp)
+register char	*bp;
+{
+	register int	turn;
+
+	turn  = uscan1(bp, VECT1);
+	turn += uscan1(bp, VECT2);
+	turn += uscan1(bp, VECT3);
+	turn += uscan1(bp, VECT4);
+	turn += uscan1(bp, VECT5);
+	turn += uscan1(bp, VECT6);
+	turn += uscan1(bp, VECT7);
+	turn += uscan1(bp, VECT8);
+
+	if(turn == 0)
+		return 0;
+
+	*bp = BLACK;
+
+	sekisa += turn + turn + 1;
+	push(bp);
+	push(turn);
+	return turn;
+}
+
+static uscan1(bp, vect)
+register char *bp;
+register int vect;
+{
+	int i, turn;
+
+	for(i = 0; *(bp+=vect) == WHITE; i++)
+		;
+	
+	if(i == 0 || *bp != BLACK)
+		return 0;
+
+		turn = i;
+
+		while(i--) {
+			*(bp-=vect) = BLACK;
+			push(bp);
+		}
+
+		return turn;
+}
+
+put2(bp)
+register char *bp;
+{
+	register int turn;
+
+	turn  = uscan2(bp, VECT1);
+	turn += uscan2(bp, VECT2);
+	turn += uscan2(bp, VECT3);
+	turn += uscan2(bp, VECT4);
+	turn += uscan2(bp, VECT5);
+	turn += uscan2(bp, VECT6);
+	turn += uscan2(bp, VECT7);
+	turn += uscan2(bp, VECT8);
+
+	if (turn == 0)
+		return 0;
+
+	*bp = WHITE;
+
+	sekisa -= turn + turn + 1;
+	push(bp);
+	push(turn);
+	return turn;
+}
+
+static uscan2(bp, vect)
+register char *bp;
+register int vect;
+{
+	int i, turn;
+
+	for(i = 0; *(bp+=vect) == BLACK; i++)
+		;
+
+	if(i == 0 || *bp != WHITE)
+		return 0;
+
+	turn = i;
+	while(i--) {
+		*(bp-=vect) = WHITE;
+		push(bp);
+	}
+
+	return turn;
+}
+
+tup1()
+{
+	register int turn;
+	register char *bp;
+
+	pop(turn);
+	pop(bp);
+
+	sekisa -= turn + turn + 1;
+	*bp = BLANK;
+
+	while(turn--) {
+		pop(bp);
+		*bp = WHITE;
+	}
+}
+
+tup2()
+{
+	register int turn;
+	register char *bp;
+
+	pop(turn);
+	pop(bp);
+
+	sekisa += turn + turn + 1;
+	*bp = BLANK;
+
+	while(turn--) {
+		pop(bp);
+		*bp = BLACK;
+	}
+}
+
+put3(bp)
+register char *bp;
+{
+	register int turn;
+
+	turn  = uscan3(bp, VECT1);
+	turn += uscan3(bp, VECT2);
+	turn += uscan3(bp, VECT3);
+	turn += uscan3(bp, VECT4);
+	turn += uscan3(bp, VECT5);
+	turn += uscan3(bp, VECT6);
+	turn += uscan3(bp, VECT7);
+	turn += uscan3(bp, VECT8);
+
+	return turn;
+}
+
+uscan3(bp, vect)
+register char *bp;
+register int vect;
+{
+	int i;
+
+	for(i = 0; *(bp+=vect) == WHITE; i++)
+		;
+	
+	if(i && *bp == BLACK)
+		return i;
+	else
+		return 0;
+}
+
+put4(bp)
+register char *bp;
+{
+	register int turn;
+
+	turn  = uscan4(bp, VECT1);
+	turn += uscan4(bp, VECT2);
+	turn += uscan4(bp, VECT3);
+	turn += uscan4(bp, VECT4);
+	turn += uscan4(bp, VECT5);
+	turn += uscan4(bp, VECT6);
+	turn += uscan4(bp, VECT7);
+	turn += uscan4(bp, VECT8);
+
+	return turn;
+}
+uscan4(bp, vect)
+register char *bp;
+register int vect;
+{
+	int i;
+
+	for(i = 0; *(bp+=vect) == BLACK; i++)
+		;
+	if(i && *bp == WHITE)
+		return i;
+	else
+		return 0;
+}
+
+isable1(bp)
+register char *bp;
+{
+	if(uscan3(bp, VECT1))
+		return 1;
+	if(uscan3(bp, VECT2))
+		return 1;
+	if(uscan3(bp, VECT3))
+		return 1;
+	if(uscan3(bp, VECT4))
+		return 1;
+	if(uscan3(bp, VECT5))
+		return 1;
+	if(uscan3(bp, VECT6))
+		return 1;
+	if(uscan3(bp, VECT7))
+		return 1;
+	if(uscan3(bp, VECT8))
+		return 1;
+
+	return 0;
+}
+
+isable2(bp)
+register char *bp;
+{
+	if(uscan4(bp, VECT1))
+		return 1;
+	if(uscan4(bp, VECT2))
+		return 1;
+	if(uscan4(bp, VECT3))
+		return 1;
+	if(uscan4(bp, VECT4))
+		return 1;
+	if(uscan4(bp, VECT5))
+		return 1;
+	if(uscan4(bp, VECT6))
+		return 1;
+	if(uscan4(bp, VECT7))
+		return 1;
+	if(uscan4(bp, VECT8))
+		return 1;
+
+	return 0;
+}
+banmen.h        613796958   187   40    100644  1033      `
+#define		A1		10
+#define		B1		11
+#define		C1		12
+#define		D1		13
+#define		E1		14
+#define		F1		15
+#define		G1		16
+#define		H1		17
+
+#define		A2		19
+#define		B2		20
+#define		C2		21
+#define		D2		22
+#define		E2		23
+#define		F2		24
+#define		G2		25
+#define		H2		26		
+
+#define		A3		28
+#define		B3		29
+#define		C3		30
+#define		D3		31
+#define		E3		32
+#define		F3		33
+#define		G3		34
+#define		H3		35
+
+#define		A4		37
+#define		B4		38
+#define		C4		39
+#define		D4		40
+#define		E4		41
+#define		F4		42
+#define		G4		43
+#define		H4		44
+
+#define		A5		46
+#define		B5		47
+#define		C5		48
+#define		D5		49
+#define		E5		50
+#define		F5		51
+#define		G5		52
+#define		H5		53
+
+#define		A6		55
+#define		B6		56
+#define		C6		57
+#define		D6		58
+#define		E6		59
+#define		F6		60
+#define		G6		61
+#define		H6		62
+
+#define		A7		64
+#define		B7		65
+#define		C7		66
+#define		D7		67
+#define		E7		68
+#define		F7		69
+#define		G7		70
+#define		H7		71
+
+#define		A8		73
+#define		B8		74
+#define		C8		75
+#define		D8		76
+#define		E8		77
+#define		F8		78
+#define		G8		79
+#define		H8		80
+
+othello.h       613796959   187   40    100644  342       `
+#define BLANK ' '
+#define BLACK 'X'
+#define WHITE '0'
+#define WALL  '|'
+
+#define VECT1 -10
+#define VECT2  -9
+#define VECT3  -8
+#define VECT4  -1
+#define VECT5   1 
+#define VECT6   8 
+#define VECT7   9 
+#define VECT8  10
+
+#define NULL    0
+
+struct cell
+{
+	struct cell	*child;
+	struct cell *cdr;
+	char	t;
+	int		h;
+};
+
+typedef struct cell	CELL;
+makefile        614400099   187   40    100644  805       `
+OTHELLO1 = othello.o com.o put.o joseki.o mr1.o mr2.o ab.o cell.o
+OTHELLO2 = eval.o bstat.o ptn.o pass.o
+
+othello : $(OTHELLO1) $(OTHELLO2) othello.h banmen.h
+	cc $(OTHELLO1) $(OTHELLO2) -o othello -lm
+
+othello.o : othello.c othello.h banmen.h
+	cc  -g -c othello.c 
+
+com.o : com.c othello.h banmen.h
+	cc  -g -c com.c 
+
+put.o : put.c banmen.h
+	cc  -g -c put.c 
+
+joseki.o : joseki.c othello.h banmen.h
+	cc  -g -c joseki.c 
+
+mr1.o : mr1.c othello.h
+	cc  -g -c mr1.c 
+
+mr2.o : mr2.c othello.h
+	cc  -g -c mr2.c 
+
+ab.o : ab.c othello.h
+	cc  -g -c ab.c 
+
+cell.o : cell.c othello.h
+	cc  -g -c cell.c 
+
+eval.o : eval.c othello.h
+	cc  -g -c eval.c 
+
+bstat.o : bstat.c othello.h banmen.h
+	cc  -g -c bstat.c 
+
+ptn.o : ptn.c othello.h banmen.h
+	cc  -g -c ptn.c 
+
+pass.o : pass.c othello.h banmen.h
+	cc  -g -c pass.c 
+
+
